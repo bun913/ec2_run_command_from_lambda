@@ -1,0 +1,8 @@
+{
+    "region": "ap-norhteast-1",
+    "s3": [
+        {
+            "name": "step-functions-test-sample"
+        }
+    ]
+}
