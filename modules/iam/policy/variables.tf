@@ -1,4 +1,4 @@
-variable "name" {
+variable "policy_name" {
   type = string
 }
 
@@ -6,11 +6,17 @@ variable "description" {
   type = string
   default = ""
 }
-
-variable "var_map" {
-  type = map
+variable "sid" {
+  type = string
+}
+variable "actions" {
+  type = list
 }
 
-variable "template_file" {
-  type = string
+variable "resources" {
+  type = list
+}
+variable "tags" {
+  type = map
+  default = {}
 }
