@@ -33,10 +33,18 @@ module "ec2_iam_policy" {
   ]
 }
 
+// create-role
 module "ec2_iam_role" {
   source    = "./modules/iam/role"
   role_name = "${var.project_name}_s3_read_role"
   actions   = ["sts:AssumeRole"]
   principal_type = "Service"
   principal_identifiers = ["ec2.amazonaws.com"]
+}
+
+// attach-role
+module "attach_role" {
+  source = "./modules/iam/attach"
+  role_name = module.ec2_iam_role.iam_role.name
+  policy_arn = module.ec2_iam_policy.policy.arn
 }
