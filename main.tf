@@ -48,3 +48,11 @@ module "attach_role" {
   role_name = module.ec2_iam_role.iam_role.name
   policy_arn = module.ec2_iam_policy.policy.arn
 }
+
+// create-vpc
+module "vpc" {
+  source = "./modules/vpc"
+  tags = local.secrets.tags
+  cidr_block = "10.0.0.0/16"
+  subnet_cidr = "10.0.0.0/24"
+}
