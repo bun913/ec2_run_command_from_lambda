@@ -56,3 +56,12 @@ module "vpc" {
   cidr_block = "10.0.0.0/16"
   subnet_cidr = "10.0.0.0/24"
 }
+
+// vpc-endpoint for accessing s3
+module "vpc_endpoint" {
+  source = "./modules/vpc_endpoint"
+  tags = local.secrets.tags
+  vpc_id = module.vpc.vpc_id
+  region = local.secrets.region
+  service_name = "com.amazonaws.ap-northeast-1.s3"
+}
