@@ -65,3 +65,11 @@ module "vpc_endpoint" {
   region = local.secrets.region
   service_name = "com.amazonaws.ap-northeast-1.s3"
 }
+
+// security-group for ec2
+module "ec2-sg" {
+  source = "./modules/security_grouo"
+  tags = local.secrets.tags
+  project_name = local.secrets.project
+  vpc_id = module.vpc.vpc_id
+}
