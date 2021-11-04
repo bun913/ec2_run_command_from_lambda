@@ -68,8 +68,24 @@ module "vpc_endpoint" {
 
 // security-group for ec2
 module "ec2-sg" {
-  source = "./modules/security_grouo"
+  source = "./modules/security_group"
   tags = local.secrets.tags
   project_name = local.secrets.project
   vpc_id = module.vpc.vpc_id
+}
+
+// get my-ip for sg rule
+module "my_ip" {
+  source = "./modules/get-my-ip"
+}
+
+// sg_inbuound_rule
+module "sg_ingress_rule" {
+  source = "./modules/security_group_rule"
+  sg_id = module.ec2-sg.id
+  type = "ingress"
+  from_port = "22"
+  to_port = "22"
+  protocol = "TCP"
+  cidr_blocks = ["${module.my_ip.my_ip}/32"]
 }
