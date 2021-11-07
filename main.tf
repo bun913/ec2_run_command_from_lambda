@@ -96,7 +96,14 @@ module "ami" {
   name_filter = ["amzn2-ami-hvm-2.0.*"]
 }
 
-output "test" {
-  value = module.ami
+// ec2-instance
+module "ec2" {
+  source        = "./modules/ec2"
+  ami_id        = module.ami.ami_id
+  instance_type = "t2.micro"
+  subnet_id     = module.vpc.subnet_id
+  sg_ids        = [module.ec2-sg.id]
+  key_name      = local.secrets.ec2.key_name
+  tags          = local.secrets.tags
 }
 
