@@ -120,4 +120,9 @@ module "route_table" {
 }
 
 // vpc-endpoint_route
+module "vpc_endpoint_route" {
+  source          = "./modules/vpc_endpoint_route"
+  endpoint_id = module.vpc_endpoint.id
+  route_table_id  = module.route_table.id
+}
 
