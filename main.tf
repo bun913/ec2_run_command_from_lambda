@@ -49,12 +49,17 @@ module "attach_role" {
   policy_arn = module.ec2_iam_policy.policy.arn
 }
 
+locals {
+  vpc_cidr    = "10.0.0.0/16"
+  subnet_cidr = "10.0.0.0/24"
+}
+
 // create-vpc
 module "vpc" {
   source      = "./modules/vpc"
   tags        = local.secrets.tags
-  cidr_block  = "10.0.0.0/16"
-  subnet_cidr = "10.0.0.0/24"
+  cidr_block  = local.vpc_cidr
+  subnet_cidr = local.subnet_cidr
 }
 
 // vpc-endpoint for accessing s3
@@ -105,5 +110,19 @@ module "ec2" {
   sg_ids        = [module.ec2-sg.id]
   key_name      = local.secrets.ec2.key_name
   tags          = local.secrets.tags
+}
+
+// route-table
+module "route_table" {
+  source = "./modules/route"
+  vpc_id = module.vpc.vpc_id
+  tags   = local.secrets.tags
+}
+
+// vpc-endpoint_route
+module "vpc_endpoint_route" {
+  source          = "./modules/vpc_endpoint_route"
+  endpoint_id = module.vpc_endpoint.id
+  route_table_id  = module.route_table.id
 }
 
