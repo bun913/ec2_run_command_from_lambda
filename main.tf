@@ -121,8 +121,19 @@ module "route_table" {
 
 // vpc-endpoint_route
 module "vpc_endpoint_route" {
-  source          = "./modules/vpc_endpoint_route"
-  endpoint_id = module.vpc_endpoint.id
-  route_table_id  = module.route_table.id
+  source         = "./modules/vpc_endpoint_route"
+  endpoint_id    = module.vpc_endpoint.id
+  route_table_id = module.route_table.id
+}
+
+// cloudtrail for cloudwatch events
+// 事前にcloudtrailの証跡保存用のバケットを作成しておく必要がある
+module "cloud_trail" {
+  source         = "./modules/cloud_trail"
+  name           = "ForS3CloudWatchEvents"
+  s3_bucket_name = local.secrets.cloud_trail.write_bucket_name
+  data_resource_values = [
+    "${module.aws_s3_bucket.arn}/"
+  ]
 }
 
