@@ -122,6 +122,7 @@ module "ec2" {
                                 #!/bin/bash
                                 echo '#/bin/bash' > /tmp/test.sh
                                 echo 'echo "Do something $(date)"' >> /tmp/test.sh
+                                chmod 777 /tmp/test.sh
                                 EOF
 }
 
