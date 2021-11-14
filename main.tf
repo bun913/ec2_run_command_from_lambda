@@ -62,6 +62,13 @@ module "vpc" {
   subnet_cidr = local.subnet_cidr
 }
 
+// create-internet-gateway
+module "igw" {
+  source = "./modules/internet_gateway"
+  tags   = local.secrets.tags
+  vpc_id = module.vpc.vpc_id
+}
+
 // vpc-endpoint for accessing s3
 module "vpc_endpoint" {
   source       = "./modules/vpc_endpoint"
@@ -103,13 +110,20 @@ module "ami" {
 
 // ec2-instance
 module "ec2" {
-  source        = "./modules/ec2"
-  ami_id        = module.ami.ami_id
-  instance_type = "t2.micro"
-  subnet_id     = module.vpc.subnet_id
-  sg_ids        = [module.ec2-sg.id]
-  key_name      = local.secrets.ec2.key_name
-  tags          = local.secrets.tags
+  source                      = "./modules/ec2"
+  ami_id                      = module.ami.ami_id
+  instance_type               = "t2.micro"
+  subnet_id                   = module.vpc.subnet_id
+  sg_ids                      = [module.ec2-sg.id]
+  key_name                    = local.secrets.ec2.key_name
+  associate_public_ip_address = true
+  tags                        = local.secrets.tags
+  user_data                   = <<-EOF
+                                #!/bin/bash
+                                echo '#/bin/bash' > /tmp/test.sh
+                                echo 'echo "Do something $(date)"' >> /tmp/test.sh
+                                chmod 777 /tmp/test.sh
+                                EOF
 }
 
 // route-table
@@ -124,6 +138,14 @@ module "vpc_endpoint_route" {
   source         = "./modules/vpc_endpoint_route"
   endpoint_id    = module.vpc_endpoint.id
   route_table_id = module.route_table.id
+}
+
+// internet-gatway-route
+module "internet_gw_route" {
+  source         = "./modules/internet_gateway_route"
+  route_table_id = module.route_table.id
+  gateway_id     = module.igw.id
+  subnet_id      = module.vpc.subnet_id
 }
 
 // cloudtrail for cloudwatch events
