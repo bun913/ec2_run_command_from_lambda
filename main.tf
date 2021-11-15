@@ -119,10 +119,16 @@ module "ec2" {
   associate_public_ip_address = true
   tags                        = local.secrets.tags
   user_data                   = <<-EOF
-                                #!/bin/bash
-                                echo '#/bin/bash' > /tmp/test.sh
-                                echo 'echo "Do something $(date)"' >> /tmp/test.sh
-                                chmod 777 /tmp/test.sh
+  #!/bin/bash
+  # Prepare ShellScript
+  echo '#/bin/bash' > /tmp/test.sh
+  echo 'echo "Do something $(date)"' >> /tmp/test.sh
+  chmod 777 /tmp/test.sh
+  # SSM Agent
+  cd /tmp
+  sudo yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
+  sudo systemctl enable amazon-ssm-agent
+  sudo systemctl start amazon-ssm-agent
                                 EOF
 }
 
