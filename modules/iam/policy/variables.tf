@@ -1,4 +1,4 @@
-variable "policy_name" {
+variable "s3_policy_name" {
   type = string
 }
 
@@ -20,3 +20,12 @@ variable "tags" {
   type = map
   default = {}
 }
+
+variable "ssm_policy_name" {
+  type = string
+}
+
+variable "policy_file_path" {
+  type = string
+}
+

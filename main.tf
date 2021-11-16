@@ -18,11 +18,11 @@ module "aws_s3_bucket" {
   tags        = local.secrets.s3.tags
 }
 
-// create s3_read_iam_policy
-module "ec2_iam_policy" {
-  source      = "./modules/iam/policy"
-  sid         = "1"
-  policy_name = "${var.project_name}_s3_read_policy"
+// create iam_policy
+module "ec2_policy" {
+  source         = "./modules/iam/policy"
+  sid            = "1"
+  s3_policy_name = "${var.project_name}_s3_read_policy"
   actions = [
     "s3:List*",
     "s3:Get*",
@@ -31,6 +31,8 @@ module "ec2_iam_policy" {
     "${module.aws_s3_bucket.arn}",
     "${module.aws_s3_bucket.arn}/*"
   ]
+  ssm_policy_name  = "${var.project_name}_ssm_policy"
+  policy_file_path = "./files/ssm_policy.json"
 }
 
 // create-role
@@ -46,7 +48,7 @@ module "ec2_iam_role" {
 module "attach_role" {
   source     = "./modules/iam/attach"
   role_name  = module.ec2_iam_role.iam_role.name
-  policy_arn = module.ec2_iam_policy.policy.arn
+  policy_arn = module.ec2_policy.s3_policy.arn
 }
 
 locals {
