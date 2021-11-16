@@ -11,46 +11,6 @@ locals {
   secrets = jsondecode(module.aws_ssm_params.params)
 }
 
-// create S3 bucket
-module "aws_s3_bucket" {
-  source      = "./modules/s3"
-  bucket_name = local.secrets.s3.name
-  tags        = local.secrets.s3.tags
-}
-
-// create iam_policy
-module "ec2_policy" {
-  source         = "./modules/iam/policy"
-  sid            = "1"
-  s3_policy_name = "${var.project_name}_s3_read_policy"
-  actions = [
-    "s3:List*",
-    "s3:Get*",
-  ]
-  resources = [
-    "${module.aws_s3_bucket.arn}",
-    "${module.aws_s3_bucket.arn}/*"
-  ]
-  ssm_policy_name  = "${var.project_name}_ssm_policy"
-  policy_file_path = "./files/ssm_policy.json"
-}
-
-// create-role
-module "ec2_iam_role" {
-  source                = "./modules/iam/role"
-  role_name             = "${var.project_name}_s3_read_role"
-  actions               = ["sts:AssumeRole"]
-  principal_type        = "Service"
-  principal_identifiers = ["ec2.amazonaws.com"]
-}
-
-// attach-role
-module "attach_role" {
-  source     = "./modules/iam/attach"
-  role_name  = module.ec2_iam_role.iam_role.name
-  policy_arn = module.ec2_policy.s3_policy.arn
-}
-
 locals {
   vpc_cidr    = "10.0.0.0/16"
   subnet_cidr = "10.0.0.0/24"
@@ -154,16 +114,5 @@ module "internet_gw_route" {
   route_table_id = module.route_table.id
   gateway_id     = module.igw.id
   subnet_id      = module.vpc.subnet_id
-}
-
-// cloudtrail for cloudwatch events
-// 事前にcloudtrailの証跡保存用のバケットを作成しておく必要がある
-module "cloud_trail" {
-  source         = "./modules/cloud_trail"
-  name           = "ForS3CloudWatchEvents"
-  s3_bucket_name = local.secrets.cloud_trail.write_bucket_name
-  data_resource_values = [
-    "${module.aws_s3_bucket.arn}/"
-  ]
 }
 
