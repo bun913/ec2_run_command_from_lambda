@@ -8,12 +8,22 @@ module "aws_ssm_params" {
 }
 
 locals {
-  secrets = jsondecode(module.aws_ssm_params.params)
+  secrets = module.aws_ssm_params.params
 }
 
 locals {
   vpc_cidr    = "10.0.0.0/16"
   subnet_cidr = "10.0.0.0/24"
+}
+
+module "store" {
+  source = "./modules/store/"
+}
+
+module "iam" {
+  source       = "./modules/iam/"
+  project_name = var.project_name
+  s3_arn       = module.store.arn
 }
 
 // create-vpc

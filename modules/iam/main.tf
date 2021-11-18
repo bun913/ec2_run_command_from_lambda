@@ -1,6 +1,15 @@
+module "aws_ssm_params" {
+  source     = "../ssm"
+  store_name = "step-functions-sample"
+}
+
+locals {
+  secrets = module.aws_ssm_params.params
+}
+
 // create iam_policy
 module "ec2_policy" {
-  source         = "./modules/iam/policy"
+  source         = "./policy"
   sid            = "1"
   s3_policy_name = "${var.project_name}_s3_read_policy"
   actions = [
@@ -8,8 +17,8 @@ module "ec2_policy" {
     "s3:Get*",
   ]
   resources = [
-    "${module.aws_s3_bucket.arn}",
-    "${module.aws_s3_bucket.arn}/*"
+    "${var.s3_arn}",
+    "${var.s3_arn}/*"
   ]
   ssm_policy_name  = "${var.project_name}_ssm_policy"
   policy_file_path = "./files/ssm_policy.json"
@@ -17,7 +26,7 @@ module "ec2_policy" {
 
 // create-role
 module "ec2_iam_role" {
-  source                = "./modules/iam/role"
+  source                = "./role"
   role_name             = "${var.project_name}_ec2"
   actions               = ["sts:AssumeRole"]
   principal_type        = "Service"
@@ -26,13 +35,13 @@ module "ec2_iam_role" {
 
 // attach-role
 module "attach_s3_role" {
-  source     = "./modules/iam/attach"
+  source     = "./attach"
   role_name  = module.ec2_iam_role.iam_role.name
   policy_arn = module.ec2_policy.s3_policy.arn
 }
 
 module "attach_ssm_role" {
-  source     = "./modules/iam/attach"
+  source     = "./attach"
   role_name  = module.ec2_iam_role.iam_role.name
   policy_arn = module.ec2_policy.ssm_policy.arn
 }
