@@ -45,4 +45,9 @@ module "attach_ssm_role" {
   role_name  = module.ec2_iam_role.iam_role.name
   policy_arn = module.ec2_policy.ssm_policy.arn
 }
+# Instance Profile
+resource "aws_iam_instance_profile" "profile" {
+  name = module.ec2_iam_role.iam_role.name
+  role = module.ec2_iam_role.iam_role.name
+}
 
