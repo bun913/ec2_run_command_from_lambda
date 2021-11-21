@@ -89,6 +89,7 @@ module "ec2" {
   sg_ids                      = [module.ec2-sg.id]
   key_name                    = local.secrets.ec2.key_name
   associate_public_ip_address = true
+  iam_instance_profile        = module.iam.profile_name
   tags                        = local.secrets.tags
   user_data                   = <<-EOF
   #!/bin/bash
